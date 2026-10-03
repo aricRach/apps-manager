@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     : [{ label: "Apps" }];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-bg-primary">
+    <div className="flex h-dvh overflow-hidden bg-bg-primary">
       {/* Desktop sidebar — full width */}
       <div className="hidden lg:block">
         <Sidebar appName="Apps Manager" appIcon={appIcon} navGroups={navGroups} />

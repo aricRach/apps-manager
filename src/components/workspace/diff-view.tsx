@@ -90,7 +90,7 @@ export function DiffView({ files, activeComment, onComment }: DiffViewProps) {
                               type="button"
                               aria-label={`Comment on line ${line.newLine}`}
                               onClick={() => onComment({ file: file.filename, line: line.newLine! })}
-                              className="flex h-5 w-5 items-center justify-center rounded-sm text-accent opacity-0 transition-colors duration-75 hover:bg-bg-hover focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100"
+                              className="flex h-5 w-5 items-center justify-center rounded-sm text-accent opacity-0 transition-colors duration-75 hover:bg-bg-hover focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover:opacity-100 pointer-coarse:opacity-100"
                             >
                               <MessageSquarePlus className="h-4 w-4" />
                             </button>

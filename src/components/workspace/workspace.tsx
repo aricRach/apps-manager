@@ -497,7 +497,7 @@ export function Workspace({ app }: { app: AppConfig }) {
                   <>
                     <p className="mb-4 text-sm text-fg-secondary">
                       {diff.files.length} file{diff.files.length === 1 ? "" : "s"} changed against{" "}
-                      {app.defaultBranch}. Hover a line and click the comment icon to send the agent a
+                      {app.defaultBranch}. Click the comment icon next to a line to send the agent a
                       note about it.
                     </p>
                     <DiffView

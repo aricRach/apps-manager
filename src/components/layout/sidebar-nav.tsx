@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
+import { Loader2, type LucideIcon } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -32,6 +32,16 @@ interface SidebarProps {
   };
 }
 
+/** Swaps the icon for a spinner while the server renders the linked page. Must render inside <Link>. */
+function NavIcon({ icon: Icon }: { icon: LucideIcon }) {
+  const { pending } = useLinkStatus();
+  return pending ? (
+    <Loader2 className="h-5 w-5 flex-shrink-0 animate-spin" aria-label="Loading" />
+  ) : (
+    <Icon className="h-5 w-5 flex-shrink-0" />
+  );
+}
+
 export function Sidebar({
   appName,
   appIcon,
@@ -45,7 +55,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r border-border bg-bg-secondary transition-[width] duration-200 ease-out",
+        "flex h-dvh flex-col border-r border-border bg-bg-secondary transition-[width] duration-200 ease-out",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -74,14 +84,14 @@ export function Sidebar({
                       href={item.href}
                       title={collapsed ? item.label : undefined}
                       className={cn(
-                        "flex items-center rounded-md text-sm font-medium transition-colors duration-75",
+                        "flex items-center rounded-md text-sm font-medium transition-colors duration-75 max-md:min-h-11",
                         collapsed ? "justify-center p-2" : "gap-2 px-2 py-2",
                         isActive
                           ? "bg-accent-subtle text-accent"
                           : "text-fg-secondary hover:bg-bg-hover hover:text-fg-primary"
                       )}
                     >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <NavIcon icon={item.icon} />
                       {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
                       {!collapsed && item.badge && (
                         <span className="flex-shrink-0 rounded-full bg-accent px-1.5 py-0.5 text-xs font-medium text-fg-on-accent">
@@ -107,14 +117,14 @@ export function Sidebar({
               href={item.href}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "flex items-center rounded-md text-sm font-medium transition-colors duration-75",
+                "flex items-center rounded-md text-sm font-medium transition-colors duration-75 max-md:min-h-11",
                 collapsed ? "justify-center p-2" : "gap-2 px-2 py-2",
                 isActive
                   ? "bg-accent-subtle text-accent"
                   : "text-fg-secondary hover:bg-bg-hover hover:text-fg-primary"
               )}
             >
-              <item.icon className="h-5 w-5 flex-shrink-0" />
+              <NavIcon icon={item.icon} />
               {!collapsed && <span>{item.label}</span>}
             </Link>
           );
