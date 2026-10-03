@@ -26,7 +26,7 @@ export async function GET(req: Request, ctx: AppRouteContext) {
       result.sha = await getBranchSha(app, branch);
       if (result.sha) {
         result.pr = await findPr(app, branch);
-        result.preview = await getPreview(app, result.sha, result.pr);
+        result.preview = await getPreview(app, branch, result.sha);
       }
     }
 

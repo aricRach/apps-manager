@@ -140,9 +140,15 @@ export async function listSessions(app: AppConfig): Promise<AgentSession[]> {
 
 export async function getPreview(
   app: AppConfig,
-  sha: string,
-  pr: PrInfo | null
+  branch: string,
+  sha: string
 ): Promise<PreviewInfo> {
+  // Netlify serves a branch deploy at a stable URL, unlike its per-PR deploy previews.
+  const branchUrl =
+    app.platform === "netlify" && app.netlifySite
+      ? `https://${branch}--${app.netlifySite}.netlify.app`
+      : null;
+
   // Vercel (and Netlify, when its GitHub app is installed) report a GitHub
   // deployment for each pushed commit.
   const deployments = await ghJson<{ id: number }[]>(
@@ -154,7 +160,7 @@ export async function getPreview(
     );
     const latest = statuses[0];
     if (latest?.state === "success") {
-      return { url: latest.environment_url || latest.target_url || null, state: "ready" };
+      return { url: branchUrl || latest.environment_url || latest.target_url || null, state: "ready" };
     }
     if (latest?.state === "failure" || latest?.state === "error") {
       return { url: null, state: "failed" };
@@ -162,9 +168,9 @@ export async function getPreview(
     return { url: null, state: "building" };
   }
 
-  // Netlify fallback: deploy-preview URLs are predictable from the PR number.
-  if (app.platform === "netlify" && app.netlifySite && pr) {
-    const url = `https://deploy-preview-${pr.number}--${app.netlifySite}.netlify.app`;
+  // Netlify fallback: no GitHub deployment, so read the build state from commit statuses.
+  if (branchUrl) {
+    const url = branchUrl;
     const combined = await ghJson<{ statuses: { context: string; state: string }[] }>(
       `/repos/${app.repo}/commits/${sha}/status`
     );
@@ -193,7 +199,7 @@ export async function getDiff(app: AppConfig, branch: string): Promise<DiffRespo
   };
 }
 
-async function deleteBranch(app: AppConfig, branch: string): Promise<void> {
+export async function deleteBranch(app: AppConfig, branch: string): Promise<void> {
   // The repo may already auto-delete merged branches, so a failure here is fine.
   await gh(`/repos/${app.repo}/git/refs/heads/${branch}`, { method: "DELETE" });
 }

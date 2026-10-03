@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { BadRequest, withApp, type AppRouteContext } from "@/lib/api";
-import { dispatchRun } from "@/lib/github";
-import { AGENT_BRANCH_PREFIX, BRANCH_PATTERN, type CommentTarget, type RunMode } from "@/lib/types";
+import { deleteBranch, dispatchRun, findPr, getBranchSha } from "@/lib/github";
+import { BRANCH_PATTERN, PREVIEW_BRANCH, type CommentTarget, type RunMode } from "@/lib/types";
 
 interface RunRequest {
   mode: RunMode;
@@ -22,8 +22,17 @@ export async function POST(req: Request, ctx: AppRouteContext) {
     if (body.mode === "review-comment" && !body.branch) throw new BadRequest("Review comments need a branch");
 
     const requestId = randomBytes(6).toString("hex");
-    const branch =
-      body.branch ?? (body.mode === "ask" ? "" : `${AGENT_BRANCH_PREFIX}${requestId}`);
+    let branch = body.branch ?? "";
+    if (!body.branch && body.mode !== "ask") {
+      branch = PREVIEW_BRANCH;
+      if (await getBranchSha(app, branch)) {
+        if (await findPr(app, branch)) {
+          throw new BadRequest("A change is already pending. Approve or discard it first.");
+        }
+        // Leftover from a run that pushed but never opened a pull request
+        await deleteBranch(app, branch);
+      }
+    }
 
     let instruction = text;
     if (body.comment) {

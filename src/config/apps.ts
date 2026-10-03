@@ -11,7 +11,7 @@ export interface AppConfig {
   defaultBranch: string;
   /** Caller workflow file in the app repo (see templates/caller-workflow.yml) */
   workflowFile: string;
-  /** Netlify site name, used to build deploy-preview URLs */
+  /** Netlify site name, used to build the branch-deploy preview URL */
   netlifySite?: string;
   notes?: string;
 }

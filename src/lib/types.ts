@@ -49,5 +49,7 @@ export interface CommentTarget {
 }
 
 export const AGENT_BRANCH_PREFIX = "agent-";
+/** One fixed branch per app, so the preview URL (and its auth allow-list entry) never changes */
+export const PREVIEW_BRANCH = "agent-preview";
 export const BRANCH_PATTERN = /^agent-[a-z0-9-]{1,60}$/;
 export const REQUEST_ID_PATTERN = /^[a-z0-9]{6,32}$/;
