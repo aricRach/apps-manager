@@ -29,6 +29,16 @@ export const apps: AppConfig[] = [
     notes: "MVP app. Preview runs against the production database.",
     netlifySite: "teams-rach"
   },
+  {
+    id: "recipes",
+    name: "Recipes",
+    repo: "aricRach/Recipes",
+    platform: "netlify",
+    productionUrl: "https://rach-recipes.netlify.app",
+    defaultBranch: "master",
+    workflowFile: "agent.yml",
+    netlifySite: "rach-recipes"
+  },
 ];
 
 export function getApp(id: string): AppConfig | undefined {
