@@ -1,0 +1,109 @@
+# Central agent workflow. Each app repo calls this from a thin workflow_dispatch
+# workflow (see templates/caller-workflow.yml).
+name: Agent run
+
+on:
+  workflow_call:
+    inputs:
+      instruction:
+        required: true
+        type: string
+      mode:
+        description: change | ask | review-comment
+        required: true
+        type: string
+      branch:
+        description: Branch to work on. Empty for an ask run against the default branch.
+        required: false
+        type: string
+        default: ""
+      title:
+        description: Pull request title for a new change
+        required: false
+        type: string
+        default: Agent change
+      request_id:
+        required: true
+        type: string
+    secrets:
+      ANTHROPIC_API_KEY:
+        required: true
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      MODE: ${{ inputs.mode }}
+      BRANCH: ${{ inputs.branch }}
+      INSTRUCTION: ${{ inputs.instruction }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Switch to the working branch
+        if: inputs.branch != ''
+        run: |
+          if git ls-remote --exit-code --heads origin "$BRANCH" > /dev/null; then
+            git checkout "$BRANCH"
+          elif [ "$MODE" != "ask" ]; then
+            git checkout -b "$BRANCH"
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      # Ask: read-only, no commit. The answer goes back to the dashboard as an artifact.
+      - name: Answer the question
+        if: inputs.mode == 'ask'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          claude -p "$INSTRUCTION" \
+            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*)" \
+            > "$RUNNER_TEMP/answer.md"
+
+      - name: Upload the answer
+        if: inputs.mode == 'ask'
+        uses: actions/upload-artifact@v4
+        with:
+          name: answer-${{ inputs.request_id }}
+          path: ${{ runner.temp }}/answer.md
+          retention-days: 1
+
+      - name: Make the change
+        if: inputs.mode != 'ask'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          claude -p "$INSTRUCTION" \
+            --permission-mode acceptEdits \
+            --allowedTools "Read,Grep,Glob,Edit,Write,Bash(npm ci),Bash(npm install:*),Bash(npm run:*),Bash(npm test:*),Bash(npx tsc:*)"
+
+      - name: Commit, push and open the pull request
+        if: inputs.mode != 'ask'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: ${{ inputs.title }}
+          BASE: ${{ github.event.repository.default_branch }}
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "::error::The agent made no changes"
+            exit 1
+          fi
+          git config user.name "apps-manager-agent"
+          git config user.email "apps-manager-agent@users.noreply.github.com"
+          git commit -m "$TITLE" -m "$INSTRUCTION"
+          git push origin "HEAD:$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
+            gh pr create --head "$BRANCH" --base "$BASE" --title "$TITLE" --body "$INSTRUCTION"
+          fi

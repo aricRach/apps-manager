@@ -1,0 +1,21 @@
+{
+  "$name": "clarity-ui/motion",
+  "$description": "Animation durations and easing. Subtle and functional — no decorative motion.",
+  "duration": {
+    "instant": { "$value": "75ms", "$type": "duration", "$description": "Hover color changes, focus rings" },
+    "fast": { "$value": "150ms", "$type": "duration", "$description": "Tooltips, dropdown open/close, button press" },
+    "normal": { "$value": "200ms", "$type": "duration", "$description": "Sidebar collapse, modal open, tab switch" },
+    "slow": { "$value": "300ms", "$type": "duration", "$description": "Page transitions, accordion expand, drawer slide" }
+  },
+  "easing": {
+    "default": { "$value": "cubic-bezier(0.4, 0, 0.2, 1)", "$type": "cubicBezier", "$description": "General purpose — smooth deceleration" },
+    "in": { "$value": "cubic-bezier(0.4, 0, 1, 1)", "$type": "cubicBezier", "$description": "Elements exiting view" },
+    "out": { "$value": "cubic-bezier(0, 0, 0.2, 1)", "$type": "cubicBezier", "$description": "Elements entering view" },
+    "spring": { "$value": "cubic-bezier(0.34, 1.56, 0.64, 1)", "$type": "cubicBezier", "$description": "Popovers, command palette — slight overshoot" }
+  },
+  "rules": {
+    "reducedMotion": "Always wrap animations in @media (prefers-reduced-motion: no-preference). Disable all motion when user prefers reduced motion.",
+    "transforms": "Prefer transform and opacity for animations — they are GPU-accelerated and don't trigger layout reflow.",
+    "noDecoration": "Never add motion purely for decoration. Every animation must serve a functional purpose: indicating state change, guiding attention, or providing spatial context."
+  }
+}

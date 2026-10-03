@@ -1,0 +1,21 @@
+{
+  "$schema": "clarity-catalog/v1",
+  "components": [
+    {
+      "name": "textarea",
+      "description": "Multi-line text input matching the Input border, focus and error styles",
+      "tags": ["textarea", "input", "form", "multiline", "text"],
+      "file": "textarea.tsx",
+      "createdAt": "2026-10-03",
+      "dependencies": []
+    },
+    {
+      "name": "segmented-control",
+      "description": "Two-or-more option switch for picking one mode, with optional icons",
+      "tags": ["segmented", "toggle", "mode", "switch", "radio", "tabs"],
+      "file": "segmented-control.tsx",
+      "createdAt": "2026-10-03",
+      "dependencies": ["lucide-react"]
+    }
+  ]
+}

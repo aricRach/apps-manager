@@ -1,0 +1,35 @@
+{
+  "$name": "clarity-ui/shadows",
+  "$description": "Elevation system. Subtle shadows — B2B SaaS relies more on borders than shadows.",
+  "shadow": {
+    "xs": {
+      "$value": "0 1px 2px 0 rgba(0, 0, 0, 0.04)",
+      "$type": "shadow",
+      "$description": "Buttons, badges, inputs"
+    },
+    "sm": {
+      "$value": "0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04)",
+      "$type": "shadow",
+      "$description": "Cards, dropdowns"
+    },
+    "md": {
+      "$value": "0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04)",
+      "$type": "shadow",
+      "$description": "Modals, popovers, floating elements"
+    },
+    "lg": {
+      "$value": "0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04)",
+      "$type": "shadow",
+      "$description": "Command palette, toasts, tooltips"
+    }
+  },
+  "dark": {
+    "$description": "In dark mode, shadows are near-invisible. Use borders and subtle bg shifts for elevation.",
+    "shadow": {
+      "xs": { "$value": "0 1px 2px 0 rgba(0, 0, 0, 0.2)", "$type": "shadow" },
+      "sm": { "$value": "0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2)", "$type": "shadow" },
+      "md": { "$value": "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2)", "$type": "shadow" },
+      "lg": { "$value": "0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2)", "$type": "shadow" }
+    }
+  }
+}

@@ -1,0 +1,300 @@
+{
+  "$schema": "clarity-ui-registry/v1",
+  "basePath": ".",
+  "note": "All file paths are relative to the directory containing this registry.json file.",
+  "components": [
+    {
+      "name": "button",
+      "description": "Primary action trigger with variants (default, destructive, outline, ghost)",
+      "tags": ["action", "click", "submit", "CTA", "form"],
+      "category": "ui",
+      "file": "components/button.tsx",
+      "dependencies": ["@radix-ui/react-slot", "class-variance-authority"]
+    },
+    {
+      "name": "input",
+      "description": "Text input field with focus ring",
+      "tags": ["form", "text", "field", "search"],
+      "category": "ui",
+      "file": "components/input.tsx",
+      "dependencies": []
+    },
+    {
+      "name": "select",
+      "description": "Styled dropdown select with Radix primitives",
+      "tags": ["dropdown", "form", "picker", "option", "combobox"],
+      "category": "ui",
+      "file": "components/select.tsx",
+      "dependencies": ["@radix-ui/react-select"]
+    },
+    {
+      "name": "stat-card",
+      "description": "KPI card with value, label, and trend indicator",
+      "tags": ["KPI", "metric", "number", "dashboard", "statistics", "card"],
+      "category": "ui",
+      "file": "components/stat-card.tsx",
+      "usageFile": "components/stat-card.usage.md",
+      "dependencies": ["lucide-react"]
+    },
+    {
+      "name": "data-table",
+      "description": "Sortable, filterable, paginated data table",
+      "tags": ["table", "grid", "list", "CRUD", "data", "sort", "filter", "paginate"],
+      "category": "ui",
+      "file": "components/data-table.tsx",
+      "usageFile": "components/data-table.usage.md",
+      "dependencies": ["lucide-react"]
+    },
+    {
+      "name": "status-badge",
+      "description": "Status indicator pill with colored dot (success/warning/error/info/neutral)",
+      "tags": ["badge", "status", "tag", "label", "indicator", "pill"],
+      "category": "ui",
+      "file": "components/status-badge.tsx",
+      "usageFile": "components/status-badge.usage.md",
+      "dependencies": []
+    },
+    {
+      "name": "filter-bar",
+      "description": "Search + filter dropdowns + active filter chips + result count",
+      "tags": ["search", "filter", "chips", "toolbar", "table-header"],
+      "category": "ui",
+      "file": "components/filter-bar.tsx",
+      "usageFile": "components/filter-bar.usage.md",
+      "dependencies": []
+    },
+    {
+      "name": "empty-state",
+      "description": "Placeholder for empty lists/tables with icon, title, description, and CTA",
+      "tags": ["empty", "placeholder", "no-data", "no-results", "zero-state"],
+      "category": "ui",
+      "file": "components/empty-state.tsx",
+      "dependencies": ["lucide-react"]
+    },
+    {
+      "name": "loading-state",
+      "description": "Skeleton screens and loading patterns (stat card, table, list item)",
+      "tags": ["skeleton", "loading", "spinner", "placeholder", "shimmer"],
+      "category": "ui",
+      "file": "components/loading-state.tsx",
+      "dependencies": []
+    },
+    {
+      "name": "breadcrumbs",
+      "description": "Page hierarchy navigation with chevron separators",
+      "tags": ["navigation", "path", "hierarchy", "breadcrumb"],
+      "category": "ui",
+      "file": "components/breadcrumbs.tsx",
+      "dependencies": ["lucide-react"]
+    },
+    {
+      "name": "form-layouts",
+      "description": "Form patterns: single-column section, two-column row, danger zone",
+      "tags": ["form", "settings", "input", "section", "danger-zone"],
+      "category": "ui",
+      "file": "components/form-layouts.tsx",
+      "dependencies": []
+    },
+    {
+      "name": "modal-dialog",
+      "description": "Modal patterns: confirmation, form dialog, detail view (sm/default/lg)",
+      "tags": ["modal", "dialog", "popup", "overlay", "confirmation", "form"],
+      "category": "ui",
+      "file": "components/modal-dialog.tsx",
+      "usageFile": "components/modal-dialog.usage.md",
+      "dependencies": ["@radix-ui/react-dialog", "lucide-react"]
+    },
+    {
+      "name": "toast-notification",
+      "description": "Non-blocking feedback messages using Sonner (success/error/info/promise)",
+      "tags": ["toast", "notification", "alert", "feedback", "snackbar"],
+      "category": "ui",
+      "file": "components/toast-notification.tsx",
+      "dependencies": ["sonner"]
+    },
+    {
+      "name": "command-palette",
+      "description": "Cmd+K search palette with keyboard navigation and fuzzy search",
+      "tags": ["command", "search", "palette", "shortcut", "keyboard", "cmd-k"],
+      "category": "ui",
+      "file": "components/command-palette.tsx",
+      "dependencies": []
+    },
+    {
+      "name": "sidebar-nav",
+      "description": "Collapsible sidebar with grouped nav items, icons, badges, user profile",
+      "tags": ["sidebar", "navigation", "menu", "nav", "layout"],
+      "category": "layout",
+      "file": "components/sidebar-nav.tsx",
+      "usageFile": "components/sidebar-nav.usage.md",
+      "dependencies": ["lucide-react"]
+    },
+    {
+      "name": "top-bar",
+      "description": "Fixed top bar with breadcrumbs, search trigger, notifications, user menu",
+      "tags": ["header", "topbar", "navbar", "toolbar", "navigation"],
+      "category": "layout",
+      "file": "components/top-bar.tsx",
+      "usageFile": "components/top-bar.usage.md",
+      "dependencies": ["lucide-react"]
+    },
+    {
+      "name": "area-chart",
+      "description": "Area/line chart for trends over time (Recharts)",
+      "tags": ["chart", "graph", "area", "line", "trend", "time-series", "visualization"],
+      "category": "chart",
+      "file": "components/area-chart.tsx",
+      "usageFile": "components/charts.usage.md",
+      "dependencies": ["recharts"]
+    },
+    {
+      "name": "bar-chart",
+      "description": "Bar chart for category comparisons (Recharts)",
+      "tags": ["chart", "graph", "bar", "comparison", "category", "visualization"],
+      "category": "chart",
+      "file": "components/bar-chart.tsx",
+      "usageFile": "components/charts.usage.md",
+      "dependencies": ["recharts"]
+    },
+    {
+      "name": "donut-chart",
+      "description": "Donut/pie chart for proportional breakdowns (Recharts)",
+      "tags": ["chart", "graph", "donut", "pie", "proportion", "segment", "visualization"],
+      "category": "chart",
+      "file": "components/donut-chart.tsx",
+      "usageFile": "components/charts.usage.md",
+      "dependencies": ["recharts"]
+    },
+    {
+      "name": "page-header",
+      "description": "Page title bar with optional description and actions slot",
+      "tags": ["header", "page", "title", "actions", "heading"],
+      "category": "layout",
+      "file": "components/page-header.tsx",
+      "dependencies": []
+    },
+    {
+      "name": "theme-toggle",
+      "description": "Light/dark mode toggle button with localStorage persistence",
+      "tags": ["theme", "dark", "light", "toggle", "mode", "switch"],
+      "category": "ui",
+      "file": "components/theme-toggle.tsx",
+      "dependencies": ["lucide-react"]
+    },
+    {
+      "name": "tabs",
+      "description": "Tabbed content switcher with underline active indicator",
+      "tags": ["tabs", "navigation", "switch", "content", "panel", "tab-bar"],
+      "category": "ui",
+      "file": "components/tabs.tsx",
+      "dependencies": []
+    },
+    {
+      "name": "dropdown-menu",
+      "description": "Dropdown menu / popover with items, separators, and group labels",
+      "tags": ["dropdown", "menu", "popover", "context-menu", "actions", "overflow"],
+      "category": "ui",
+      "file": "components/dropdown-menu.tsx",
+      "dependencies": ["@radix-ui/react-popover"]
+    },
+    {
+      "name": "progress-bar",
+      "description": "Horizontal progress bar with warning/critical color thresholds",
+      "tags": ["progress", "bar", "meter", "usage", "loading", "percentage"],
+      "category": "ui",
+      "file": "components/progress-bar.tsx",
+      "dependencies": []
+    },
+    {
+      "name": "toggle",
+      "description": "On/off switch toggle with optional label and description",
+      "tags": ["toggle", "switch", "on-off", "boolean", "setting", "preference"],
+      "category": "ui",
+      "file": "components/toggle.tsx",
+      "dependencies": ["@radix-ui/react-switch"]
+    },
+    {
+      "name": "tooltip",
+      "description": "Hover tooltip with arrow and configurable positioning",
+      "tags": ["tooltip", "hint", "help", "hover", "info", "popover"],
+      "category": "ui",
+      "file": "components/tooltip.tsx",
+      "dependencies": ["@radix-ui/react-tooltip"]
+    },
+    {
+      "name": "avatar",
+      "description": "Circular avatar with image or initials fallback, plus AvatarGroup",
+      "tags": ["avatar", "user", "profile", "image", "initials", "group"],
+      "category": "ui",
+      "file": "components/avatar.tsx",
+      "dependencies": ["class-variance-authority"]
+    }
+  ],
+  "layouts": [
+    {
+      "name": "app-shell",
+      "description": "Foundation layout: sidebar + topbar + scrollable content area",
+      "tags": ["shell", "layout", "wrapper", "scaffold", "frame"],
+      "file": "layouts/app-shell.tsx"
+    },
+    {
+      "name": "dashboard",
+      "description": "Overview page: KPI cards → charts (2:1) → activity table",
+      "tags": ["dashboard", "overview", "home", "analytics", "KPI", "metrics"],
+      "file": "layouts/dashboard.tsx",
+      "usageFile": "layouts/dashboard.usage.md"
+    },
+    {
+      "name": "list-detail",
+      "description": "Master list (w-96) + detail panel with tabs",
+      "tags": ["list", "detail", "master-detail", "entity", "users", "orders"],
+      "file": "layouts/list-detail.tsx",
+      "usageFile": "layouts/list-detail.usage.md"
+    },
+    {
+      "name": "settings",
+      "description": "Side nav (w-48) + form content (max-w-2xl), spacious density",
+      "tags": ["settings", "preferences", "configuration", "admin", "profile"],
+      "file": "layouts/settings.tsx"
+    },
+    {
+      "name": "data-management",
+      "description": "Full-width CRUD table with filters, bulk actions, row actions",
+      "tags": ["CRUD", "table", "management", "orders", "invoices", "products"],
+      "file": "layouts/data-management.tsx"
+    },
+    {
+      "name": "auth-pages",
+      "description": "Centered card on bg-secondary, no app shell (login, signup, forgot password)",
+      "tags": ["auth", "login", "signup", "register", "forgot-password", "authentication"],
+      "file": "layouts/auth-pages.tsx"
+    }
+  ],
+  "patterns": [
+    {
+      "name": "responsive",
+      "description": "3-breakpoint responsive rules (mobile <768, tablet 768-1279, desktop ≥1280)",
+      "file": "patterns/responsive.md"
+    },
+    {
+      "name": "density",
+      "description": "Adaptive density system (compact for tables, default for forms, spacious for settings)",
+      "file": "patterns/density.md"
+    },
+    {
+      "name": "dark-mode",
+      "description": "Dark mode implementation with CSS custom properties and class strategy",
+      "file": "patterns/dark-mode.md"
+    },
+    {
+      "name": "accessibility",
+      "description": "WCAG AA compliance rules, keyboard navigation, focus management",
+      "file": "patterns/accessibility.md"
+    },
+    {
+      "name": "composition",
+      "description": "Reusable Tailwind class recipes for building custom components from design tokens",
+      "file": "patterns/composition.md"
+    }
+  ]
+}
