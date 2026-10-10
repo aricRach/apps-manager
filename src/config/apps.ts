@@ -39,6 +39,26 @@ export const apps: AppConfig[] = [
     workflowFile: "agent.yml",
     netlifySite: "rach-recipes"
   },
+  {
+    id: "acl-rehab",
+    name: "ACL Rehab",
+    repo: "aricRach/ACL-Rehab",
+    platform: "netlify",
+    productionUrl: "https://acl-rehab-rach.netlify.app",
+    defaultBranch: "master",
+    workflowFile: "agent.yml",
+    netlifySite: "acl-rehab-rach"
+  },
+  {
+    id: "interview-prep",
+    name: "Interview Prep",
+    repo: "aricRach/interview-prep",
+    platform: "netlify",
+    productionUrl: "https://rach-interviews.netlify.app",
+    defaultBranch: "main",
+    workflowFile: "agent.yml",
+    netlifySite: "rach-interviews"
+  },
 ];
 
 export function getApp(id: string): AppConfig | undefined {
