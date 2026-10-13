@@ -1,5 +1,18 @@
 export const SESSION_COOKIE = "am_session";
 
+// A Vercel preview of this dashboard is shown inside the production dashboard's
+// iframe, on another domain, where a "lax" cookie is dropped. Only previews get
+// the cross-site cookie, partitioned so it stays tied to the embedding site.
+const embeddedPreview = process.env.VERCEL_ENV === "preview";
+
+export const sessionCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: embeddedPreview ? "none" : "lax",
+  partitioned: embeddedPreview,
+  path: "/",
+} as const;
+
 // Uses Web Crypto so it runs in both middleware (edge) and route handlers.
 async function sha256(value: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
