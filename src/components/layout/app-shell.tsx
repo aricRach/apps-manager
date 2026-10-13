@@ -1,19 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AppWindow, Bot, LayoutGrid, X } from "lucide-react";
 import { apps } from "@/config/apps";
 import { Sidebar } from "@/components/layout/sidebar-nav";
 import { TopBar } from "@/components/layout/top-bar";
-
-const navGroups = [
-  { items: [{ label: "All apps", href: "/apps", icon: LayoutGrid, exact: true }] },
-  {
-    label: "Apps",
-    items: apps.map((app) => ({ label: app.name, href: `/apps/${app.id}`, icon: AppWindow })),
-  },
-];
 
 const appIcon = (
   <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent">
@@ -21,9 +13,33 @@ const appIcon = (
   </div>
 );
 
+const HiddenAppIdsContext = createContext<ReadonlySet<string>>(new Set());
+
+/** Ids of the apps hidden from the menu in this page load */
+export function useHiddenAppIds() {
+  return useContext(HiddenAppIdsContext);
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  /* In memory only, so hidden apps come back on a page refresh */
+  const [hiddenIds, setHiddenIds] = useState<ReadonlySet<string>>(new Set());
+
+  const navGroups = [
+    { items: [{ label: "All apps", href: "/apps", icon: LayoutGrid, exact: true }] },
+    {
+      label: "Apps",
+      items: apps
+        .filter((app) => !hiddenIds.has(app.id))
+        .map((app) => ({
+          label: app.name,
+          href: `/apps/${app.id}`,
+          icon: AppWindow,
+          onHide: () => setHiddenIds((prev) => new Set(prev).add(app.id)),
+        })),
+    },
+  ];
 
   /* Close drawer on route change or Escape */
   useEffect(() => setMobileOpen(false), [pathname]);
@@ -72,7 +88,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <TopBar breadcrumbs={breadcrumbs} onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto">
+          <HiddenAppIdsContext.Provider value={hiddenIds}>{children}</HiddenAppIdsContext.Provider>
+        </main>
       </div>
     </div>
   );

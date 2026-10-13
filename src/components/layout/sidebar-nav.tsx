@@ -3,7 +3,7 @@
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Loader2, type LucideIcon } from "lucide-react";
+import { EyeOff, Loader2, type LucideIcon } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -12,6 +12,8 @@ interface NavItem {
   badge?: string;
   /** Only highlight on an exact path match (for parents of other nav items) */
   exact?: boolean;
+  /** Shows a hide button on the row (not in the collapsed sidebar) */
+  onHide?: () => void;
 }
 
 interface NavGroup {
@@ -78,14 +80,16 @@ export function Sidebar({
               {group.items.map((item) => {
                 const isActive =
                   pathname === item.href || (!item.exact && pathname.startsWith(item.href + "/"));
+                const canHide = !collapsed && !!item.onHide;
                 return (
-                  <li key={item.href}>
+                  <li key={item.href} className="group relative">
                     <Link
                       href={item.href}
                       title={collapsed ? item.label : undefined}
                       className={cn(
                         "flex items-center rounded-md text-sm font-medium transition-colors duration-75 max-md:min-h-11",
                         collapsed ? "justify-center p-2" : "gap-2 px-2 py-2",
+                        canHide && "pr-9",
                         isActive
                           ? "bg-accent-subtle text-accent"
                           : "text-fg-secondary hover:bg-bg-hover hover:text-fg-primary"
@@ -99,6 +103,17 @@ export function Sidebar({
                         </span>
                       )}
                     </Link>
+                    {canHide && (
+                      <button
+                        type="button"
+                        onClick={item.onHide}
+                        aria-label={`Hide ${item.label}`}
+                        title="Hide from menu"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-fg-muted opacity-0 transition-[color,opacity] duration-75 hover:text-fg-primary focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+                      >
+                        <EyeOff className="h-4 w-4" />
+                      </button>
+                    )}
                   </li>
                 );
               })}

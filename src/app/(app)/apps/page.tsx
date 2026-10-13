@@ -1,12 +1,18 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { apps } from "@/config/apps";
+import { useHiddenAppIds } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 
 const platformLabel = { vercel: "Vercel", netlify: "Netlify" };
 
 export default function AppsPage() {
+  const hiddenIds = useHiddenAppIds();
+  const visibleApps = apps.filter((app) => !hiddenIds.has(app.id));
+
   return (
     <>
       <PageHeader
@@ -26,7 +32,7 @@ export default function AppsPage() {
               </tr>
             </thead>
             <tbody>
-              {apps.map((app) => (
+              {visibleApps.map((app) => (
                 <tr
                   key={app.id}
                   className="border-b border-border transition-colors duration-75 last:border-0 hover:bg-bg-hover"
