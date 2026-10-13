@@ -59,6 +59,16 @@ export const apps: AppConfig[] = [
     workflowFile: "agent.yml",
     netlifySite: "rach-interviews"
   },
+  {
+    id: "apps-manager",
+    name: "Apps Manager",
+    repo: "aricRach/apps-manager",
+    platform: "vercel",
+    productionUrl: "https://rach-apps-manager.vercel.app",
+    defaultBranch: "main",
+    workflowFile: "agent.yml",
+    notes: "This dashboard. Approving a change redeploys it.",
+  },
 ];
 
 export function getApp(id: string): AppConfig | undefined {

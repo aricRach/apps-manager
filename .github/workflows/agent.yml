@@ -1,0 +1,40 @@
+name: Agent
+run-name: "${{ inputs.mode }} · ${{ inputs.request_id }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      instruction:
+        required: true
+        type: string
+      mode:
+        required: true
+        type: choice
+        options: [change, ask, review-comment]
+      branch:
+        required: false
+        type: string
+        default: ""
+      title:
+        required: false
+        type: string
+        default: Agent change
+      request_id:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  agent:
+    uses: aricRach/apps-manager/.github/workflows/agent-run.yml@main
+    with:
+      instruction: ${{ inputs.instruction }}
+      mode: ${{ inputs.mode }}
+      branch: ${{ inputs.branch }}
+      title: ${{ inputs.title }}
+      request_id: ${{ inputs.request_id }}
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
