@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { apps } from "@/config/apps";
 import { useHiddenAppIds } from "@/components/layout/app-shell";
+import { HowItWorksDialog } from "@/components/layout/how-it-works-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
 
@@ -18,6 +19,7 @@ export default function AppsPage() {
       <PageHeader
         title="Apps"
         description="Pick an app to change it, ask about it, or review a pending change."
+        actions={<HowItWorksDialog />}
       />
       <div className="px-4 pb-6 sm:px-6">
         <div className="overflow-x-auto rounded-md border border-border">
