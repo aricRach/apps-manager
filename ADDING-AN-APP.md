@@ -2,8 +2,8 @@
 
 About 15 minutes. Six steps, then a test. Background and architecture are in `TECH-DESIGN.md`.
 
-These steps are for an app hosted on **Netlify**, which is the tested path. For Vercel see
-[the note at the bottom](#vercel-apps).
+These steps are for an app hosted on **Netlify**, which is the tested path. For an app on
+Vercel, steps 4 to 6 are different: follow [Vercel apps](#vercel-apps) for those.
 
 ## Before you start, collect these
 
@@ -98,6 +98,9 @@ and push this change so it redeploys.
 | Preview loads but the app is broken or empty | Environment variables missing for branch deploys | Step 4.3 |
 | Preview area is blank | The app blocks embedding | Remove `X-Frame-Options` / `frame-ancestors` from the app's headers (`netlify.toml` or `_headers`), or use the open-in-new-tab button |
 | Login fails in the preview | Preview address not allowed | Step 5 |
+| Vercel: preview asks for a Vercel login, or the preview area is blank | Deployment Protection is on for previews | Vercel step 4.2 |
+| Vercel: stuck on "Building preview" | The project is not connected to the repo, so no build starts | Vercel step 4.1 |
+| Vercel: login page comes back after signing in, with no error | The app's login cookie is dropped inside the embedded preview | Vercel step 5, cookie login |
 
 For any failed run, the **Run log** link in the dashboard's status card shows the exact error.
 
@@ -117,10 +120,54 @@ The agent reads this file on every run. A short one makes its changes fit your c
 
 ## Vercel apps
 
-Not tested yet. Steps 1 to 3 and 6 are the same, with `platform: "vercel"` and no `netlifySite`. Differences:
+Less tested than Netlify. The only Vercel app so far is Apps Manager itself (`apps-manager`
+in `src/config/apps.ts`).
 
-- Vercel builds branches automatically once the project is connected to the repo.
-- Turn off Deployment Protection for previews, or the iframe is blocked.
-- Vercel gives every build a new address, so an app with login will hit the same
-  allowed-domain problem Football had. The dashboard needs a small change to use Vercel's
-  stable branch address first.
+Steps 1 to 3 are the same as above. Replace steps 4 to 6 with these.
+
+### Step 4 (Vercel): project settings
+
+1. The project must be connected to the GitHub repo (Settings → Git). Vercel then builds
+   every pushed branch on its own; there is no branch-deploy setting to turn on.
+2. Settings → Deployment Protection → turn **Vercel Authentication** off for previews.
+   While it is on, the preview asks for a Vercel login and cannot load inside the dashboard.
+3. Settings → Environment Variables: every variable production needs must also have
+   **Preview** ticked.
+
+### Step 5 (Vercel): allow login on the preview address
+
+Skip this step if the app has no login.
+
+Vercel gives every build a new address, and the dashboard shows that one. So the preview
+address changes with each change the agent makes.
+
+- **Supabase:** dashboard → Authentication → URL Configuration → Redirect URLs →
+  add a wildcard that covers all of the project's previews, such as
+  `https://<project>-*-<vercel account>.vercel.app/**`.
+- **Firebase:** not supported yet. Firebase needs one fixed domain, and the dashboard does
+  not yet use Vercel's fixed branch address
+  (`<project>-git-agent-preview-<vercel account>.vercel.app`). Until it does, open the
+  preview with the open-in-new-tab button and expect login to fail.
+- **Cookie login in the app's own code** (like Apps Manager's password): the browser drops
+  a `SameSite=Lax` cookie inside the embedded preview, so signing in returns to the login
+  page. On preview deployments set the cookie with `SameSite=None; Secure; Partitioned`,
+  and reject API writes from other origins. See `src/lib/auth.ts` and `src/middleware.ts`
+  in this repo.
+
+### Step 6 (Vercel): register the app
+
+Same as step 6 above, with `platform: "vercel"` and no `netlifySite`:
+
+```ts
+{
+  id: "my-app",
+  name: "My App",
+  repo: "aricRach/my-app",
+  platform: "vercel",
+  productionUrl: "https://my-app.vercel.app",
+  defaultBranch: "main",
+  workflowFile: "agent.yml",
+},
+```
+
+Then run the same four tests from [Test it](#test-it).
