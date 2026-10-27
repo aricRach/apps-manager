@@ -1,6 +1,6 @@
 import "server-only";
 import { strFromU8, unzipSync } from "fflate";
-import type { AppConfig } from "@/config/apps";
+import type { AppConfig, Platform } from "@/config/apps";
 import {
   AGENT_BRANCH_PREFIX,
   type AgentSession,
@@ -138,48 +138,82 @@ export async function listSessions(app: AppConfig): Promise<AgentSession[]> {
     .map((pr) => ({ branch: pr.head.ref, pr: toPrInfo(pr) }));
 }
 
-export async function getPreview(
-  app: AppConfig,
-  branch: string,
-  sha: string
-): Promise<PreviewInfo> {
-  // Netlify serves a branch deploy at a stable URL, unlike its per-PR deploy previews.
-  const branchUrl =
-    app.platform === "netlify" && app.netlifySite
-      ? `https://${branch}--${app.netlifySite}.netlify.app`
-      : null;
+type PreviewResolver = (app: AppConfig, branch: string, sha: string) => Promise<PreviewInfo>;
 
-  // Vercel (and Netlify, when its GitHub app is installed) report a GitHub
-  // deployment for each pushed commit.
+const building: PreviewInfo = { url: null, state: "building" };
+
+function previewFromState(state: string | undefined, url: string | null): PreviewInfo {
+  if (state === "success" && url) return { url, state: "ready" };
+  if (state === "failure" || state === "error") return { url: null, state: "failed" };
+  return building;
+}
+
+async function getCommitStatuses(app: AppConfig, sha: string) {
+  const combined = await ghJson<{ statuses: { context: string; state: string; target_url: string | null }[] }>(
+    `/repos/${app.repo}/commits/${sha}/status`
+  );
+  return combined.statuses;
+}
+
+// Vercel (and Netlify, when its GitHub app is installed) report a GitHub
+// deployment for each pushed commit. Returns null when there is none yet.
+async function deploymentPreview(
+  app: AppConfig,
+  sha: string,
+  preferredUrl: string | null = null
+): Promise<PreviewInfo | null> {
   const deployments = await ghJson<{ id: number }[]>(
     `/repos/${app.repo}/deployments?sha=${sha}&per_page=5`
   );
-  if (deployments[0]) {
-    const statuses = await ghJson<{ state: string; environment_url?: string; target_url?: string }[]>(
-      `/repos/${app.repo}/deployments/${deployments[0].id}/statuses?per_page=1`
-    );
-    const latest = statuses[0];
-    if (latest?.state === "success") {
-      return { url: branchUrl || latest.environment_url || latest.target_url || null, state: "ready" };
-    }
-    if (latest?.state === "failure" || latest?.state === "error") {
-      return { url: null, state: "failed" };
-    }
-    return { url: null, state: "building" };
-  }
+  if (!deployments[0]) return null;
+  const statuses = await ghJson<{ state: string; environment_url?: string; target_url?: string }[]>(
+    `/repos/${app.repo}/deployments/${deployments[0].id}/statuses?per_page=1`
+  );
+  const latest = statuses[0];
+  return previewFromState(
+    latest?.state,
+    preferredUrl || latest?.environment_url || latest?.target_url || null
+  );
+}
 
-  // Netlify fallback: no GitHub deployment, so read the build state from commit statuses.
-  if (branchUrl) {
-    const url = branchUrl;
-    const combined = await ghJson<{ statuses: { context: string; state: string }[] }>(
-      `/repos/${app.repo}/commits/${sha}/status`
-    );
-    const netlify = combined.statuses.find((s) => /netlify/i.test(s.context));
-    if (netlify?.state === "success") return { url, state: "ready" };
-    if (netlify?.state === "failure" || netlify?.state === "error") return { url: null, state: "failed" };
-  }
+async function vercelPreview(app: AppConfig, _branch: string, sha: string): Promise<PreviewInfo> {
+  return (await deploymentPreview(app, sha)) ?? building;
+}
 
-  return { url: null, state: "building" };
+async function netlifyPreview(app: AppConfig, branch: string, sha: string): Promise<PreviewInfo> {
+  // Netlify serves a branch deploy at a stable URL, unlike its per-PR deploy previews.
+  const branchUrl = app.netlifySite ? `https://${branch}--${app.netlifySite}.netlify.app` : null;
+  const fromDeployment = await deploymentPreview(app, sha, branchUrl);
+  if (fromDeployment) return fromDeployment;
+  if (!branchUrl) return building;
+
+  // No GitHub deployment, so read the build state from commit statuses.
+  const statuses = await getCommitStatuses(app, sha);
+  const netlify = statuses.find((s) => /netlify/i.test(s.context));
+  return previewFromState(netlify?.state, branchUrl);
+}
+
+// Firebase has no git integration. The app's agent.yml deploys a preview channel
+// and reports it as a "firebase" commit status whose target is the channel URL.
+async function firebasePreview(app: AppConfig, _branch: string, sha: string): Promise<PreviewInfo> {
+  const statuses = await getCommitStatuses(app, sha);
+  const firebase = statuses.find((s) => s.context === "firebase");
+  // Firebase serves pages with max-age=3600, so a browser that loaded the channel
+  // before (even its "Site Not Found" page) keeps showing that copy. A per-commit
+  // query string makes each change a fresh URL.
+  const url = firebase?.target_url ? `${firebase.target_url}?v=${sha.slice(0, 7)}` : null;
+  return previewFromState(firebase?.state, url);
+}
+
+// Keyed by Platform, so adding a platform without a resolver fails to compile.
+const previewResolvers: Record<Platform, PreviewResolver> = {
+  vercel: vercelPreview,
+  netlify: netlifyPreview,
+  firebase: firebasePreview,
+};
+
+export function getPreview(app: AppConfig, branch: string, sha: string): Promise<PreviewInfo> {
+  return previewResolvers[app.platform](app, branch, sha);
 }
 
 export async function getDiff(app: AppConfig, branch: string): Promise<DiffResponse> {

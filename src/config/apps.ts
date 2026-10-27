@@ -1,4 +1,10 @@
-export type Platform = "vercel" | "netlify";
+export type Platform = "vercel" | "netlify" | "firebase";
+
+export const platformLabel: Record<Platform, string> = {
+  vercel: "Vercel",
+  netlify: "Netlify",
+  firebase: "Firebase",
+};
 
 export interface AppConfig {
   /** URL slug used in the dashboard */
@@ -58,6 +64,16 @@ export const apps: AppConfig[] = [
     defaultBranch: "main",
     workflowFile: "agent.yml",
     netlifySite: "rach-interviews"
+  },
+  {
+    id: "cashflow",
+    name: "Cashflow",
+    repo: "aricRach/cashflow",
+    platform: "firebase",
+    productionUrl: "https://rach-cashflow.web.app",
+    defaultBranch: "main",
+    workflowFile: "agent.yml",
+    notes: "Preview runs against the production Firestore.",
   },
   {
     id: "apps-manager",

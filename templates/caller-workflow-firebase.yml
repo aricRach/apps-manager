@@ -1,0 +1,103 @@
+# Firebase Hosting version of caller-workflow.yml. Copy to .github/workflows/agent.yml
+# in the app repo, on its default branch, and fill in the two values marked EDIT.
+#
+# Netlify and Vercel build every pushed branch on their own. Firebase does not, and
+# the agent pushes with GITHUB_TOKEN, which never starts other workflows. So the
+# preview job below deploys the agent branch to a Firebase preview channel and
+# reports it to the dashboard as a "firebase" commit status.
+#
+# The dashboard finds its run through the request id in run-name, so keep it.
+name: Agent
+run-name: "${{ inputs.mode }} · ${{ inputs.request_id }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      instruction:
+        required: true
+        type: string
+      mode:
+        required: true
+        type: choice
+        options: [change, ask, review-comment]
+      branch:
+        required: false
+        type: string
+        default: ""
+      title:
+        required: false
+        type: string
+        default: Agent change
+      request_id:
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+
+env:
+  FIREBASE_PROJECT_ID: my-firebase-project # EDIT: the Firebase project id
+  BUILD_COMMAND: npm ci && npm run build   # EDIT: whatever builds the hosting folder
+
+jobs:
+  agent:
+    uses: aricRach/apps-manager/.github/workflows/agent-run.yml@main
+    with:
+      instruction: ${{ inputs.instruction }}
+      mode: ${{ inputs.mode }}
+      branch: ${{ inputs.branch }}
+      title: ${{ inputs.title }}
+      request_id: ${{ inputs.request_id }}
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+  preview:
+    needs: agent
+    if: inputs.mode != 'ask'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Mark the preview as building
+        run: |
+          echo "SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$(git rev-parse HEAD)" \
+            -f state=pending -f context=firebase -f description="Deploying preview"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Add the build's environment variables here as repository secrets, e.g.
+      #   VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+      - name: Build
+        run: ${{ env.BUILD_COMMAND }}
+
+      - name: Deploy to the preview channel
+        id: deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ env.FIREBASE_PROJECT_ID }}
+          channelId: ${{ inputs.branch }}
+          expires: 30d
+
+      - name: Report the preview URL
+        env:
+          URL: ${{ steps.deploy.outputs.details_url }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" \
+            -f state=success -f context=firebase -f target_url="$URL" -f description="Preview ready"
+
+      - name: Report the failure
+        if: failure() && env.SHA != ''
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/statuses/$SHA" \
+            -f state=failure -f context=firebase -f description="Preview deploy failed"

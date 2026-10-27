@@ -15,7 +15,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import type { AppConfig } from "@/config/apps";
+import { platformLabel, type AppConfig } from "@/config/apps";
 import type {
   AgentSession,
   CommentTarget,
@@ -482,7 +482,7 @@ export function Workspace({ app }: { app: AppConfig }) {
                 ) : previewState === "failed" ? (
                   <div className="rounded-md border border-status-error bg-status-error-bg p-4 text-sm text-status-error">
                     The preview deployment failed. Check the deployment on{" "}
-                    {app.platform === "vercel" ? "Vercel" : "Netlify"}, or ask the agent to fix the build.
+                    {platformLabel[app.platform]}, or ask the agent to fix the build.
                   </div>
                 ) : (
                   <div className="rounded-md border border-border p-4">
@@ -546,7 +546,7 @@ export function Workspace({ app }: { app: AppConfig }) {
             <DialogTitle>Approve and merge?</DialogTitle>
             <DialogDescription>
               This squash-merges {branch} into {app.defaultBranch} of {app.repo}.{" "}
-              {app.platform === "vercel" ? "Vercel" : "Netlify"} then publishes it to production.
+              {platformLabel[app.platform]} then publishes it to production.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

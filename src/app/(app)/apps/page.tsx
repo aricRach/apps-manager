@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
-import { apps } from "@/config/apps";
+import { apps, platformLabel } from "@/config/apps";
 import { useHiddenAppIds } from "@/components/layout/app-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
-
-const platformLabel = { vercel: "Vercel", netlify: "Netlify" };
 
 export default function AppsPage() {
   const hiddenIds = useHiddenAppIds();
