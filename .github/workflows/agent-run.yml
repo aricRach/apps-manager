@@ -86,7 +86,8 @@ jobs:
         run: |
           claude -p "$INSTRUCTION" \
             --permission-mode acceptEdits \
-            --allowedTools "Read,Grep,Glob,Edit,Write,Bash(npm ci),Bash(npm install:*),Bash(npm run:*),Bash(npm test:*),Bash(npx tsc:*)"
+            --append-system-prompt "Leave your changes uncommitted in the working tree; the workflow commits them. To undo an earlier commit, run git revert --no-commit <sha>." \
+            --allowedTools "Read,Grep,Glob,Edit,Write,Bash(npm ci),Bash(npm install:*),Bash(npm run:*),Bash(npm test:*),Bash(npx tsc:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git revert --no-commit:*)"
 
       - name: Commit, push and open the pull request
         if: inputs.mode != 'ask'
